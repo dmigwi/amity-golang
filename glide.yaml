@@ -1,0 +1,4 @@
+package: Amity-Golang
+import:
+- package: github.com/go-pg/pg
+- package: github.com/lib/pq
