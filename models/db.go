@@ -8,15 +8,15 @@ type Connection struct {
 	*pg.DB
 }
 
-// InitDB creates a database connection that is used to make
+// InitDB creates a database connection that is used to execute
 // the various database transactions
-func InitDB(config string) (*Connection, error) {
-	var db = pg.Connect(
+func InitDB(user, db, password string) *Connection {
+	var con = pg.Connect(
 		&pg.Options{
-			User:     "amity",
-			Database: "amity",
-			Password: "12345",
+			User:     user,
+			Database: db,
+			Password: password,
 		})
 
-	return &Connection{db}, nil
+	return &Connection{con}
 }

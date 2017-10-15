@@ -3,6 +3,8 @@ package models
 import (
 	"errors"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 // Room defines the underlying information of a room in Amity room allocation system
@@ -14,16 +16,8 @@ type Room struct {
 }
 
 // CreateRoom makes a database operation to create a new room of the provided type
-func (config *Connection) CreateRoom(name, roomType string, size ...int) (Room, error) {
-	var (
-		capacity int
-
-		room = Room{
-			Capacity: capacity,
-			Type:     roomType,
-			Name:     name,
-		}
-	)
+func (config *Connection) CreateRoom(name, roomType string) (Room, error) {
+	var capacity int
 
 	switch strings.ToLower(roomType) {
 	case "office":
@@ -31,22 +25,38 @@ func (config *Connection) CreateRoom(name, roomType string, size ...int) (Room, 
 	case "livingspace":
 		capacity = 6
 	default:
-		return room, errors.New("Only office and livingspace room types can be created")
+		return Room{}, errors.New("Only office and livingspace room types can be created")
+	}
+
+	var room = Room{
+		Capacity: capacity,
+		Type:     roomType,
+		Name:     name,
+		ID:       uuid.New().String(),
 	}
 
 	return room, config.Insert(&room)
 }
 
 // DeleteRoom deletes a room given the its ID
-func (config *Connection) DeleteRoom(ID string) error {
-	return config.Delete(&Room{
-		ID: ID,
-	})
+func (config *Connection) DeleteRoom(ID string) (string, error) {
+	var resp, err = config.Model(&Room{ID: ID}).Delete()
+
+	if err != nil {
+		return "error", err
+	}
+
+	if resp.RowsAffected() == 1 {
+		return "success", nil
+	}
+
+	return "error", errors.New("No Room that was deleted")
+
 }
 
 // GetRoom fetches the room details given its ID
 func (config *Connection) GetRoom(ID string) (Room, error) {
-	var room Room
+	var room = Room{ID: ID}
 
 	return room, config.Select(&room)
 }
@@ -60,8 +70,16 @@ func (config *Connection) GetRooms() ([]Room, error) {
 }
 
 // UpdateRoom updates the name of a given room
-func (config *Connection) UpdateRoom(name string) (Room, error) {
-	var room = Room{Name: name}
+func (config *Connection) UpdateRoom(name, ID string) (string, error) {
+	var resp, err = config.Model(&Room{Name: name, ID: ID}).Column("name").Update()
 
-	return room, config.Update(&room)
+	if err != nil {
+		return "error", err
+	}
+
+	if resp.RowsAffected() == 1 {
+		return "success", nil
+	}
+
+	return "error", errors.New("No Room that was updated")
 }
