@@ -55,10 +55,17 @@ func (config *Connection) DeleteRoom(ID string) (string, error) {
 }
 
 // GetRoom fetches the room details given its ID
-func (config *Connection) GetRoom(ID string) (Room, error) {
-	var room = Room{ID: ID}
+func (config *Connection) GetRoom(name, ID string) (Room, error) {
+	var room Room
 
-	return room, config.Select(&room)
+	switch {
+	case ID != "":
+		return room, config.Select(&room)
+	case name != "":
+		return room, config.Model(&room).Where("name = ?", name).Select()
+	default:
+		return room, errors.New("Room Id or name must be provided")
+	}
 }
 
 // GetRooms fetches all rooms that are currently in existence

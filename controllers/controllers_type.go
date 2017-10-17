@@ -6,13 +6,13 @@ type (
 	// Datastore defines all the methods that are implemented by this interface
 	Datastore interface {
 		CreateRoom(name, roomType string) (models.Room, error)
-		CreateUser(fname, lname, officeID, jobType string, livingspaceID ...string) (models.UserSpaces, error)
+		CreateUser(fname, lname, office, jobType string, livingspace ...string) (models.UserSpaces, error)
 		DeleteRoom(ID string) (string, error)
 		DeleteUser(ID string) (string, error)
-		GetRoom(ID string) (models.Room, error)
+		GetRoom(name, ID string) (models.Room, error)
 		GetRooms() ([]models.Room, error)
-		GetUser(ID string) (models.UserSpaces, error)
-		GetUsers(officeID, livingSpaceID string) ([]models.User, error)
+		GetUser(fname, lname, ID string) (models.UserSpaces, error)
+		GetUsers(office, livingSpace string) ([]models.User, error)
 		UpdateRoom(name, ID string) (string, error)
 		UpdateUser(fname, lname, ID string) (string, error)
 	}
@@ -23,5 +23,12 @@ type (
 	Room struct {
 		models.Room
 		Occupants []models.User
+	}
+
+	// User defines a user of the amity room allocation system as defined in the models
+	User struct {
+		models.User
+		Office      models.Room
+		LivingSpace models.Room
 	}
 )

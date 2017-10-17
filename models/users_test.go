@@ -110,7 +110,7 @@ func TestGetUser(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(user.ID, ShouldNotBeEmpty)
 
-			newUser, err = testCon.GetUser(user.ID)
+			newUser, err = testCon.GetUser(fname, lname, "")
 
 			So(err, ShouldBeNil)
 

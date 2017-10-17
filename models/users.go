@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -26,11 +25,11 @@ type (
 )
 
 // CreateUser create a new user with the provided details
-func (config *Connection) CreateUser(fname, lname, officeID, jobType string, livingspaceID ...string) (UserSpaces, error) {
+func (config *Connection) CreateUser(fname, lname, office, jobType string, livingspace ...string) (UserSpaces, error) {
 	var ls = ""
 
-	if len(livingspaceID) > 0 {
-		ls = livingspaceID[0]
+	if len(livingspace) > 0 {
+		ls = livingspace[0]
 	}
 
 	switch strings.ToLower(jobType) {
@@ -53,7 +52,7 @@ func (config *Connection) CreateUser(fname, lname, officeID, jobType string, liv
 			Type:      jobType,
 		},
 		Livingspace: ls,
-		Office:      officeID,
+		Office:      office,
 	}
 
 	return user, config.Insert(&user)
@@ -75,14 +74,21 @@ func (config *Connection) DeleteUser(ID string) (string, error) {
 }
 
 // GetUser fetches and returns a user associated with the given ID
-func (config *Connection) GetUser(ID string) (UserSpaces, error) {
-	var user = UserSpaces{User: User{ID: ID}}
+func (config *Connection) GetUser(fname, lname, ID string) (UserSpaces, error) {
+	var user UserSpaces
 
-	return user, config.Select(&user)
+	switch {
+	case fname != "" && lname != "":
+		return user, config.Model(&user).Where("first_name =?", fname).Where("last_name =?", lname).Select()
+	case ID != "":
+		return user, config.Select(&UserSpaces{User: User{ID: ID}})
+	default:
+		return user, errors.New("ID or Firstname and Lastname of a user must be provided")
+	}
 }
 
 // GetUsers fetches all the users currently in existence
-func (config *Connection) GetUsers(officeID, livingSpaceID string) ([]User, error) {
+func (config *Connection) GetUsers(office, livingSpace string) ([]User, error) {
 	var (
 		err      error
 		newUsers []User
@@ -90,18 +96,14 @@ func (config *Connection) GetUsers(officeID, livingSpaceID string) ([]User, erro
 	)
 
 	switch {
-	case officeID == "" && livingSpaceID != "":
-		err = config.Model(&users).Where("Livingspace = ?", livingSpaceID).Select()
+	case office == "" && livingSpace != "":
+		err = config.Model(&users).Where("Livingspace = ?", livingSpace).Select()
 
-	case livingSpaceID == "" && officeID != "":
-		err = config.Model(&users).Where("Office = ?", officeID).Select()
-
-	case livingSpaceID != "" && officeID != "":
-		err = config.Model(&users).Where("Office = ?", officeID).Where("Livingspace = ?", livingSpaceID).Select()
+	case livingSpace == "" && office != "":
+		err = config.Model(&users).Where("Office = ?", office).Select()
 
 	default:
-		fmt.Println(4)
-		return newUsers, errors.New("Both or either of Office or Livingspace ID must be provided")
+		err = config.Model(&users).Where("Office = ?", office).Where("Livingspace = ?", livingSpace).Select()
 	}
 
 	if err != nil {

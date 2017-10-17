@@ -108,7 +108,7 @@ func TestGetRoom(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(room.ID, ShouldNotBeEmpty)
 
-			newRoom, err = testCon.GetRoom(room.ID)
+			newRoom, err = testCon.GetRoom(name, "")
 
 			So(err, ShouldBeNil)
 
