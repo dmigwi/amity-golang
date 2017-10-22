@@ -19,28 +19,23 @@ type (
 	// UserSpaces defines details of the occupants of the room in amity space allocation system
 	UserSpaces struct {
 		User
-		Livingspace string
-		Office      string
+		LivingSpaceID string
+		OfficeID      string
 	}
 )
 
 // CreateUser create a new user with the provided details
-func (config *Connection) CreateUser(fname, lname, office, jobType string, livingspace ...string) (UserSpaces, error) {
-	var ls = ""
+func (config *Connection) CreateUser(fname, lname, userType, officeID, livingspaceID string) (UserSpaces, error) {
 
-	if len(livingspace) > 0 {
-		ls = livingspace[0]
-	}
-
-	switch strings.ToLower(jobType) {
+	switch strings.ToLower(userType) {
 	case "fellow", "staff":
-		jobType = strings.ToLower(jobType)
+		userType = strings.ToLower(userType)
 
 	default:
-		return UserSpaces{}, errors.New(jobType + ": Only staff and fellow jobTypes are allowed")
+		return UserSpaces{}, errors.New(userType + ": Only staff and fellow userTypes are allowed")
 	}
 
-	if ls != "" && jobType == "staff" {
+	if livingspaceID != "" && userType == "staff" {
 		return UserSpaces{}, errors.New("A staff cannot be allocated a livingspace")
 	}
 
@@ -49,10 +44,10 @@ func (config *Connection) CreateUser(fname, lname, office, jobType string, livin
 			FirstName: fname,
 			ID:        uuid.New().String(),
 			LastName:  lname,
-			Type:      jobType,
+			Type:      userType,
 		},
-		Livingspace: ls,
-		Office:      office,
+		LivingSpaceID: livingspaceID,
+		OfficeID:      officeID,
 	}
 
 	return user, config.Insert(&user)
@@ -75,20 +70,29 @@ func (config *Connection) DeleteUser(ID string) (string, error) {
 
 // GetUser fetches and returns a user associated with the given ID
 func (config *Connection) GetUser(fname, lname, ID string) (UserSpaces, error) {
-	var user UserSpaces
+	var (
+		err  error
+		user UserSpaces
+	)
 
 	switch {
 	case fname != "" && lname != "":
-		return user, config.Model(&user).Where("first_name =?", fname).Where("last_name =?", lname).Select()
+		err = config.Model(&user).Where("first_name =?", fname).Where("last_name =?", lname).Select()
 	case ID != "":
-		return user, config.Select(&UserSpaces{User: User{ID: ID}})
+		err = config.Model(&user).Where("id =?", ID).Select()
 	default:
-		return user, errors.New("ID or Firstname and Lastname of a user must be provided")
+		err = errors.New("ID or Firstname and Lastname of a user must be provided")
 	}
+
+	if err != nil && err.Error() != "pg: no rows in result set" {
+		return user, err
+	}
+
+	return user, nil
 }
 
 // GetUsers fetches all the users currently in existence
-func (config *Connection) GetUsers(office, livingSpace string) ([]User, error) {
+func (config *Connection) GetUsers(officeID, livingSpaceID string) ([]User, error) {
 	var (
 		err      error
 		newUsers []User
@@ -96,17 +100,17 @@ func (config *Connection) GetUsers(office, livingSpace string) ([]User, error) {
 	)
 
 	switch {
-	case office == "" && livingSpace != "":
-		err = config.Model(&users).Where("Livingspace = ?", livingSpace).Select()
+	case officeID == "" && livingSpaceID != "":
+		err = config.Model(&users).Where("Living_Space_ID = ?", livingSpaceID).Select()
 
-	case livingSpace == "" && office != "":
-		err = config.Model(&users).Where("Office = ?", office).Select()
+	case livingSpaceID == "" && officeID != "":
+		err = config.Model(&users).Where("Office_ID = ?", officeID).Select()
 
 	default:
-		err = config.Model(&users).Where("Office = ?", office).Where("Livingspace = ?", livingSpace).Select()
+		err = config.Model(&users).Where("Office_ID = ?", officeID).Where("Living_Space_ID = ?", livingSpaceID).Select()
 	}
 
-	if err != nil {
+	if err != nil && err.Error() != "pg: no rows in result set" {
 		return newUsers, err
 	}
 
@@ -118,12 +122,22 @@ func (config *Connection) GetUsers(office, livingSpace string) ([]User, error) {
 }
 
 // UpdateUser updates the firstName and the last name to the user whose ID is provided
-func (config *Connection) UpdateUser(fname, lname, ID string) (string, error) {
-	var resp, err = config.Model(&UserSpaces{User: User{
+func (config *Connection) UpdateUser(fname, lname, ID, officeID, livingspaceID string) (string, error) {
+	var user = UserSpaces{User: User{
 		FirstName: fname,
 		LastName:  lname,
 		ID:        ID,
-	}}).Update()
+	}}
+
+	if livingspaceID != "" {
+		user.LivingSpaceID = livingspaceID
+	}
+
+	if officeID != "" {
+		user.OfficeID = officeID
+	}
+
+	var resp, err = config.Model(&user).Column("first_name", "last_name", "living_space_id", "office_id").Update()
 
 	if err != nil {
 		return "error", err

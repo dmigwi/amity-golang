@@ -1,7 +1,8 @@
-package: Amity-Golang
+package: amity-golang
 import:
 - package: github.com/go-pg/pg
 - package: github.com/google/uuid
+- package: github.com/subosito/gotenv
 testImport:
 - package: github.com/smartystreets/goconvey
   subpackages:

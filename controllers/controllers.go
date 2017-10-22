@@ -1,13 +1,14 @@
 package controllers
 
 import (
-	"Amity-Golang/models"
+	"amity-golang/models"
 	"errors"
+	"strings"
 )
 
 // AddPerson adds a new user to the Amity room allocation system. The new user can
 // choose to have a room while bieng created or a room can be allocated to them later
-func AddPerson(ds Datastore, fname, lname, jobType, office, livingspace string) (User, error) {
+func AddPerson(ds Datastore, fname, lname, jobType, officeName, livingspaceName string) (User, error) {
 	var (
 		newUser   User
 		user, err = ds.GetUser(fname, lname, "")
@@ -18,45 +19,22 @@ func AddPerson(ds Datastore, fname, lname, jobType, office, livingspace string) 
 	}
 
 	if user != (models.UserSpaces{}) {
-		newUser.Office, err = ds.GetRoom("", user.Office)
-
-		if err != nil {
-			return newUser, err
-		}
-
-		newUser.LivingSpace, err = ds.GetRoom("", user.Livingspace)
-
-		if err != nil {
-			return newUser, err
-		}
-
-		newUser.User = user.User
-
-		return newUser, nil
+		return newUser, errors.New(fname + " " + lname + " already exists")
 	}
 
-	if livingspace != "" {
-		if newUser.LivingSpace, err = ds.GetRoom(livingspace, ""); err != nil {
+	if livingspaceName != "" {
+		if newUser.LivingSpace, _, err = getRoomDetails(ds, livingspaceName, "livingspace"); err != nil {
 			return newUser, err
-		}
-
-		if newUser.LivingSpace == (models.Room{}) {
-			return newUser, errors.New("LivingSpace :" + livingspace + " does not exists")
 		}
 	}
 
-	if office != "" {
-		if newUser.Office, err = ds.GetRoom(office, ""); err != nil {
+	if officeName != "" {
+		if newUser.Office, _, err = getRoomDetails(ds, officeName, "office"); err != nil {
 			return newUser, err
 		}
-
-		if newUser.Office == (models.Room{}) {
-			return newUser, errors.New("Office :" + office + " does not exists")
-		}
-
 	}
 
-	user, err = ds.CreateUser(fname, lname, newUser.Office.ID, jobType, newUser.LivingSpace.ID)
+	user, err = ds.CreateUser(fname, lname, jobType, newUser.Office.ID, newUser.LivingSpace.ID)
 
 	newUser.User = user.User
 
@@ -99,9 +77,9 @@ func GetRoom(ds Datastore, name string) (Room, error) {
 	fetchedRoom.Room = room
 
 	if room.Type == "office" {
-		fetchedRoom.Occupants, err = ds.GetUsers(name, "")
+		fetchedRoom.Occupants, err = ds.GetUsers(room.ID, "")
 	} else {
-		fetchedRoom.Occupants, err = ds.GetUsers("", name)
+		fetchedRoom.Occupants, err = ds.GetUsers("", room.ID)
 	}
 
 	return fetchedRoom, err
@@ -153,6 +131,83 @@ func GetUnallocatedPeople(ds Datastore) ([]User, error) {
 
 // ReallocatePerson assign a user already added to the system a new room. It can also move a
 // a user to a new room.
-func ReallocatePerson(Datastore interface{}, userID, roomName string) (Room, error) {
+func ReallocatePerson(ds Datastore, fname, lname, roomName string) (Room, error) {
+	var (
+		status    string
+		users     []models.User
+		user      models.UserSpaces
+		room, err = ds.GetRoom(roomName, "")
+	)
 
+	if err != nil {
+		return Room{}, err
+	}
+
+	if room == (models.Room{}) {
+		return Room{}, errors.New(roomName + "does not exist")
+	}
+
+	user, err = ds.GetUser(fname, lname, "")
+
+	if err != nil {
+		return Room{}, err
+	}
+
+	if user == (models.UserSpaces{}) {
+		return Room{}, errors.New(fname + " " + lname + " does not exist in the system")
+	}
+
+	switch room.Type {
+	case "office":
+		status, err = ds.UpdateUser(fname, lname, user.ID, room.ID, "")
+	case "livingspace":
+		status, err = ds.UpdateUser(fname, lname, user.ID, "", room.ID)
+	}
+
+	if err != nil {
+		return Room{}, err
+	}
+
+	if status != "success" {
+		return Room{}, errors.New("Room reallocation failed")
+	}
+
+	room, users, err = getRoomDetails(ds, room.Name, room.Type)
+
+	return Room{Room: room, Occupants: users}, err
+}
+
+// getRoomDetails checks if the room name provided exists, otherwise an error is returned.
+// It also check if the existing has reached its capacity, an error is returned if the
+// capacity has been reached.
+func getRoomDetails(ds Datastore, roomName, roomType string) (models.Room, []models.User, error) {
+	var (
+		users     []models.User
+		room, err = ds.GetRoom(roomName, "")
+	)
+
+	if err != nil {
+		return room, users, err
+	}
+
+	if room == (models.Room{}) {
+		return room, users, errors.New(roomName + " " + roomType + " does not exists")
+	}
+
+	switch strings.ToLower(roomType) {
+	case "office":
+		users, err = ds.GetUsers(room.ID, "")
+	case "livingspace":
+		users, err = ds.GetUsers("", room.ID)
+	}
+
+	if err != nil {
+		return room, users, err
+	}
+
+	if len(users) >= room.Capacity {
+		return room, users, errors.New(roomName + " has already reached its maximum capacity")
+	}
+
+	return room, users, nil
 }

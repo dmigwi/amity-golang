@@ -13,8 +13,8 @@ var printUser = func(user UserSpaces) {
 	log.Println("FirstName :", user.FirstName)
 	log.Println("ID :", user.ID)
 	log.Println("LastName :", user.LastName)
-	log.Println("Livingspace :", user.Livingspace)
-	log.Println("Office :", user.Office)
+	log.Println("LivingSpaceID :", user.LivingSpaceID)
+	log.Println("OfficeID :", user.OfficeID)
 	log.Println("Type :", user.Type)
 	log.Println()
 }
@@ -26,8 +26,8 @@ func TestCreateUsers(t *testing.T) {
 		status string
 		user   UserSpaces
 
-		fetchUser = func(fname, lname, office, livingspace, userType string) {
-			user, err = testCon.CreateUser(fname, lname, office, userType, livingspace)
+		fetchUser = func(fname, lname, userType, officeID, livingspaceID string) {
+			user, err = testCon.CreateUser(fname, lname, userType, officeID, livingspaceID)
 
 			So(err, ShouldBeNil)
 
@@ -39,19 +39,19 @@ func TestCreateUsers(t *testing.T) {
 
 	Convey("Tests for CreateUser Method", t, func() {
 		Convey("CreateUser should return User values that are not empty and a nil error", func() {
-			fetchUser("Ashley", "Mwenje", "sample-ID", "", "fellow")
+			fetchUser("Ashley", "Mwenje", "fellow", "sample-ID", "")
 
 			So(err, ShouldBeNil)
 			So(user.FirstName, ShouldEqual, "Ashley")
 			So(user.ID, ShouldNotBeBlank)
-			So(user.Livingspace, ShouldBeBlank)
-			So(user.Office, ShouldEqual, "sample-ID")
+			So(user.LivingSpaceID, ShouldBeBlank)
+			So(user.OfficeID, ShouldEqual, "sample-ID")
 			So(user.LastName, ShouldEqual, "Mwenje")
 			So(user.Type, ShouldEqual, "fellow")
 		})
 
 		Convey("Print the succesfully created User", func() {
-			fetchUser("David", "Owour", "tyteuyte-uw", "hjahdjad", "fellow")
+			fetchUser("David", "Owour", "fellow", "tyteuyte-uw", "hjahdjad")
 
 			So(err, ShouldBeNil)
 
@@ -68,8 +68,8 @@ func TestDeleteUser(t *testing.T) {
 		user   UserSpaces
 		status string
 
-		deleteUser = func(fname, lname, office, livingspace, userType string) {
-			user, err = testCon.CreateUser(fname, lname, office, userType, livingspace)
+		deleteUser = func(fname, lname, userType, officeID, livingspaceID string) {
+			user, err = testCon.CreateUser(fname, lname, userType, officeID, livingspaceID)
 
 			So(err, ShouldBeNil)
 			So(user.ID, ShouldNotBeEmpty)
@@ -81,14 +81,14 @@ func TestDeleteUser(t *testing.T) {
 
 	Convey("Tests for DeleteUser", t, func() {
 		Convey("DeleteUser should return a status success and a nil error", func() {
-			deleteUser("Kryptonite", "Batman", "Office", "", "staff")
+			deleteUser("Kryptonite", "Batman", "staff", "Office", "")
 
 			So(err, ShouldBeNil)
 			So(status, ShouldEqual, "success")
 		})
 
 		Convey("Print successfully fetched status ", func() {
-			deleteUser("Kryptonite", "Batman", "Office", "", "staff")
+			deleteUser("Kryptonite", "Batman", "staff", "Office", "")
 
 			log.Println()
 			log.Println("Status :", status)
@@ -104,8 +104,8 @@ func TestGetUser(t *testing.T) {
 		user, newUser UserSpaces
 		status        string
 
-		fetchUser = func(fname, lname, office, livingspace, userType string) {
-			user, err = testCon.CreateUser(fname, lname, office, userType, livingspace)
+		fetchUser = func(fname, lname, userType, officeID, livingspaceID string) {
+			user, err = testCon.CreateUser(fname, lname, userType, officeID, livingspaceID)
 
 			So(err, ShouldBeNil)
 			So(user.ID, ShouldNotBeEmpty)
@@ -122,19 +122,19 @@ func TestGetUser(t *testing.T) {
 
 	Convey("Tests for GetUser", t, func() {
 		Convey("GetUser should return User values that are not empty", func() {
-			fetchUser("Adam", "Shire", "", "livingspace", "fellow")
+			fetchUser("Adam", "Shire", "fellow", "", "livingspace")
 
 			So(err, ShouldBeNil)
 			So(newUser.FirstName, ShouldEqual, "Adam")
 			So(newUser.ID, ShouldNotBeEmpty)
 			So(newUser.LastName, ShouldEqual, "Shire")
-			So(newUser.Livingspace, ShouldEqual, "livingspace")
-			So(newUser.Office, ShouldBeEmpty)
+			So(newUser.LivingSpaceID, ShouldEqual, "livingspace")
+			So(newUser.OfficeID, ShouldBeEmpty)
 			So(newUser.Type, ShouldEqual, "fellow")
 		})
 
 		Convey("Print the successfully fetched User", func() {
-			fetchUser("Adam", "Lupu", "Narnia", "", "staff")
+			fetchUser("Adam", "Lupu", "staff", "Narnia", "")
 
 			So(err, ShouldBeNil)
 
@@ -151,13 +151,13 @@ func TestGetUsers(t *testing.T) {
 		users  []User
 		status string
 
-		fetchUsers = func(fname, lname, office, livingspace, userType string) {
-			user, err = testCon.CreateUser(fname, lname, office, userType, livingspace)
+		fetchUsers = func(fname, lname, userType, officeID, livingspaceID string) {
+			user, err = testCon.CreateUser(fname, lname, userType, officeID, livingspaceID)
 
 			So(err, ShouldBeNil)
 			So(user.ID, ShouldNotBeEmpty)
 
-			users, err = testCon.GetUsers(office, livingspace)
+			users, err = testCon.GetUsers(officeID, livingspaceID)
 
 			So(err, ShouldBeNil)
 
@@ -169,7 +169,7 @@ func TestGetUsers(t *testing.T) {
 
 	Convey("Tests for GetUsers", t, func() {
 		Convey("GetUsers should return a slice of User values that is not empty", func() {
-			fetchUsers("Joshua", "Wafula", "Intercon", "", "staff")
+			fetchUsers("Joshua", "Wafula", "fellow", "", "uyweu2736tza")
 
 			So(err, ShouldBeNil)
 			So(users, ShouldNotBeEmpty)
@@ -178,12 +178,12 @@ func TestGetUsers(t *testing.T) {
 				So(newUser.FirstName, ShouldEqual, "Joshua")
 				So(newUser.ID, ShouldNotBeEmpty)
 				So(newUser.LastName, ShouldEqual, "Wafula")
-				So(newUser.Type, ShouldEqual, "staff")
+				So(newUser.Type, ShouldEqual, "fellow")
 			}
 		})
 
 		Convey("Print the successfully fetched User", func() {
-			fetchUsers("Joshua", "Wafula", "Camelot", "", "staff")
+			fetchUsers("Joshua", "Wafula", "staff", "Camelot", "")
 
 			So(err, ShouldBeNil)
 			So(users, ShouldNotBeEmpty)
@@ -207,13 +207,13 @@ func TestUpdateUser(t *testing.T) {
 		user              UserSpaces
 		status, newStatus string
 
-		fetchUser = func(fname, lname, office, livingspace, userType string) {
-			user, err = testCon.CreateUser(fname, lname, office, userType, livingspace)
+		fetchUser = func(fname, lname, userType, officeID, livingspaceID string) {
+			user, err = testCon.CreateUser(fname, lname, userType, officeID, livingspaceID)
 
 			So(err, ShouldBeNil)
 			So(user.ID, ShouldNotBeEmpty)
 
-			newStatus, err = testCon.UpdateUser("FirstName", "LastName", user.ID)
+			newStatus, err = testCon.UpdateUser("FirstName", "LastName", user.ID, "Kilimani", "Dojo")
 
 			So(err, ShouldBeNil)
 
@@ -225,14 +225,14 @@ func TestUpdateUser(t *testing.T) {
 
 	Convey("Tests for UpdateUser", t, func() {
 		Convey("UpdateUser should return status equal to empty", func() {
-			fetchUser("Ekuru", "Aukot", "State House", "State House", "fellow")
+			fetchUser("Ekuru", "Aukot", "fellow", "State House", "State House")
 
 			So(err, ShouldBeNil)
 			So(newStatus, ShouldEqual, "success")
 		})
 
 		Convey("Print the successfully fetched Status", func() {
-			fetchUser("Ekuru", "Aukot", "State House", "State House", "fellow")
+			fetchUser("Ekuru", "Aukot", "fellow", "State House", "State House")
 
 			So(err, ShouldBeNil)
 
