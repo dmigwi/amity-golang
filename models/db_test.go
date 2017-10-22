@@ -1,7 +1,6 @@
 package models
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"testing"
@@ -20,7 +19,6 @@ func TestMain(m *testing.M) {
 
 	if !testing.Verbose() {
 		log.SetFlags(0)
-		log.SetOutput(ioutil.Discard)
 	}
 
 	os.Exit(m.Run())
@@ -53,6 +51,5 @@ func TestInitDB(t *testing.T) {
 
 			So(con, ShouldNotBeNil)
 		})
-
 	})
 }
