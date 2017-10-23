@@ -15,18 +15,18 @@ var (
 
 // getDBConfig create a postgres database configuration using the set environment variables
 func getDBConfig() (PgConfig, error) {
-	var user, password, db string
+	var dbConfig PgConfig
 
-	db = os.Getenv("AG_DATABASE")
-	password = os.Getenv("AG_PASSWORD")
-	user = os.Getenv("AG_USER")
+	dbConfig.DBName = os.Getenv("AG_DATABASE")
+	dbConfig.DBPassword = os.Getenv("AG_PASSWORD")
+	dbConfig.DBUser = os.Getenv("AG_USER")
 
-	if db == "" || password == "" || user == "" {
+	if dbConfig.DBName == "" || dbConfig.DBPassword == "" || dbConfig.DBUser == "" {
 		return PgConfig{}, errors.New("AG_DATABASE, AG_PASSWORD or AG_USER " +
 			"environment variable cannot be empty")
 	}
 
-	return PgConfig{DBName: db, DBPassword: password, DBUser: user}, nil
+	return dbConfig, nil
 }
 
 // CreateSchemas delete old schemam before creating new ones

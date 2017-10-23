@@ -154,7 +154,7 @@ func ReallocatePerson(ds Datastore, fname, lname, roomName string) (Room, error)
 	}
 
 	if user == (models.UserSpaces{}) {
-		return Room{}, errors.New(fname + " " + lname + " does not exist in the system")
+		return Room{}, errors.New(fname + " " + lname + " does not exist")
 	}
 
 	switch room.Type {

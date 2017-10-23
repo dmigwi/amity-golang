@@ -12,7 +12,6 @@ var con Datastore
 func TestMain(m *testing.M) {
 	if !testing.Verbose() {
 		log.SetFlags(0)
-		// log.SetOutput(ioutil.Discard)
 	}
 
 	switch os.Getenv("ENV") {

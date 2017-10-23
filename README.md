@@ -1,16 +1,16 @@
 
 ### [Amity-Golang]
 
-This is a Golang version of the original system built in python.
+This is the Amity room allocations system built in golang.
 
 Visit [Amity Space Allocation System](http://andela-dmigwi.github.io/amity-space-allocation/) for more information.
 
 
 Amity is an [Andela](http://andela.com) facility that has several rooms in it. A room can be
 either a **Living Space** or an **Office Space**. An Office Space can accomodate a maximum of
-6 people and the Living Space can accomodate a maximum of 4 at ago.  
+six people and the Living Space can accomodate a maximum of four people at ago.  
 
-The Amity Space Allocation allocate people either The Living Space or The Office Space.  
+The Amity Space Allocation allocate people either Livingspace or Officespace.  
 
 A room can be allocated **ONLY** to a staff or a fellow at Andela. Staff cannot be allocated any living spaces.
  Fellows have a choice to choose a living space or not. 
@@ -52,62 +52,57 @@ Chmod +x run_test.sh
 ```
 
 ### Run the system 
-go run amity.go
+
+- Set `PATH`
+
+```bash
+export PATH=$PATH:$GOPATH/n
+```
+
+- Install the binaries 
+
+```bash
+go install
+```
+
+- Execute all command with a prefix `amity-golang` e.g
+
+`amity-golang print_room Narnia`
 
 
 # Usage
  
 ## Create Room
-*Command:* `create_room <room_name>...`  
- - Creates rooms in Amity. This command allows one to create room  
-   **Single room**: `create_room Dojo` -> Create room called **Dojo**  
-   **Multiple rooms**: `create_room Dojo,Krypton,Valhala` -> Creates three rooms: **Dojo**, **Krypton** and **Valhala**
-
- - After typing the create command, you will be prompted to type:  
-   `O` for Office   
-       or  
-   `L` for Living Space  
-
- *This will be repeated for every room you create*  
-
+*Command:* `create_room <room_name> <room_type>`  
+ - Creates rooms in Amity. This command allows one to create a new room 
 
 ## Add Person
- *Command:* `add_person <person_name> <FELLOW|STAFF> [wants_accommodation]`  
- - Adds a person to the system and allocates the person to a random room. wants_accommodation here is an optional argument which can be either ``Y`` or ``N``.  
-The default value if it is not provided is `N`.  
+ *Command:* `"add_person <First_Name> <Last_Name> <fellow|staff> <office_Name> <livingSpace_Name>"`  
+ - Adds a person to the system and allocates the person to the room (s) if they are available.  
 
 ## Reallocate Person
- *Command:* `reallocate_person <person_identifier> <new_room_name>`  
+ *Command:* `reallocate_person <First_Name> <Last_Name> <New_Room_Name>`  
  - Reallocate the person with person_name to new_room_name.  
 
 ## Print Allocations
 *Command:* `print_allocations [filename]`  
  - Prints a list of allocations onto the screen. The file name is optional, if its not provided, data is not printed in a file.  
   
-    ``Room Name:  Narnia ``  
-    ``-------------------------------------``  
-    ``MEMBER 1, MEMBER 2, MEMBER 3``  
-
-   
-    ``Room Name:  Krypton``  
-    ``-------------------------------------``  
-    ``MEMBER 1, MEMBER 2``  
-
-
-    ``Room Name:  Krypton``  
-    ``-------------------------------------``  
-    ``MEMBER 1, MEMBER 2``  
-  
-## Print Empty Rooms
-*Command:* `print_empty_rooms [filename]`  
- - Prints a list of unallocated rooms to the screen. The file name is optional, if its not provided, data is not printed in a file.  
+    ``Room Details``  
+    ``=====================``  
+    ``Capacity : 6``  
+    ``ID : 31e6c28c-8e55-47b9-a786-803ff29b3c2c``  
+    ``Name : Narnia``  
+    ``Type : office``  
+    ``Occupants -``  
+    ``=====================``    
 
 ## Print Room
 *Command:* `print_room <room_name>`  
  - Prints the names of all the people in ``room_name`` on the screen.  
 
-## Print Unallocated
-*Command:* `print_unallocated [filename]`  
+## Print Unallocated People
+*Command:* `print_unallocated_people`  
  - Prints a list of unallocated people to the screen. The file name is optional, if its not provided, data is not printed in a file.  
 
 **@Done By [Migwi-Ndung'u] (http://www.github.com/dmigwi)**  

@@ -20,38 +20,46 @@ func GetConnection(config *models.PgConfig) *models.Connection {
 // init sets up the database configuration from the set environment variables
 func init() {
 	var (
-		errStr = " environment variable cannot be empty"
+		err error
 
-		exit = func(msg string) {
-			fmt.Println(msg + errStr)
+		envFile = os.Getenv("ENV_FILE")
+
+		exit = func(msg string, err error) {
+			msg = msg + " environment variable cannot be empty"
+
+			if err != nil {
+				msg = err.Error()
+			}
+
+			fmt.Println(msg)
 			os.Exit(1)
 		}
 	)
 
-	gotenv.Load()
+	DBConfig = &models.PgConfig{}
 
-	var db = os.Getenv("AG_DATABASE")
-
-	if db == "" {
-		exit("AG_DATABASE")
+	if envFile == "" {
+		err = gotenv.Load()
+	} else {
+		err = gotenv.Load(envFile)
 	}
 
-	var password = os.Getenv("AG_PASSWORD")
-
-	if password == "" {
-		exit("AG_PASSWORD")
+	if err != nil {
+		exit("", err)
 	}
 
-	var user = os.Getenv("AG_USER")
+	DBConfig.DBName = os.Getenv("AG_DATABASE")
+	DBConfig.DBPassword = os.Getenv("AG_PASSWORD")
+	DBConfig.DBUser = os.Getenv("AG_USER")
 
-	if user == "" {
-		exit("AG_PASSWORD")
+	switch {
+	case DBConfig.DBName == "":
+		exit("AG_DATABASE", nil)
+
+	case DBConfig.DBPassword == "":
+		exit("AG_PASSWORD", nil)
+
+	case DBConfig.DBUser == "":
+		exit("AG_PASSWORD", nil)
 	}
-
-	DBConfig = &models.PgConfig{
-		DBName:     db,
-		DBPassword: password,
-		DBUser:     user,
-	}
-
 }

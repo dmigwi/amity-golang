@@ -7,6 +7,10 @@ AG_PKG=amity-golang
 # controllers tests should run with the mock models connection
 export ENV="mockDB"
 
+# ENV_FILE exposes the location of the .env file that is located 
+# at the root of folder for the test environment
+export ENV_FILE="../.env"
+
 # Run the controllers  and the models tests
 go test  ${AG_PKG}/controllers  ${AG_PKG}/models $@
 

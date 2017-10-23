@@ -3,6 +3,7 @@ import:
 - package: github.com/go-pg/pg
 - package: github.com/google/uuid
 - package: github.com/subosito/gotenv
+- package: github.com/urfave/cli
 testImport:
 - package: github.com/smartystreets/goconvey
   subpackages:
