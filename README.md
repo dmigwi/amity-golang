@@ -35,7 +35,7 @@ Clone `git clone https://github.com/dmigwi/amity-golang.git`
  glide install
  ```
 
- - Create a `.env` file in the root folder with following configuration
+ - Create a `.env` file in the root folder with following configuration:
 
  ```
 export AG_DATABASE=amity
@@ -53,7 +53,7 @@ Chmod +x run_test.sh
 
 ### Run the system 
 
-- Set `PATH`
+- Set `PATH` to create in an application:
 
 ```bash
 export PATH=$PATH:$GOPATH/n
@@ -65,28 +65,23 @@ export PATH=$PATH:$GOPATH/n
 go install
 ```
 
-- Execute all command with a prefix `amity-golang` e.g
-
-`amity-golang print_room Narnia`
-
-
 # Usage
  
 ## Create Room
-*Command:* `create_room <room_name> <room_type>`  
+*Command:* `amity-golang create_room <room_name> <room_type>`  
  - Creates rooms in Amity. This command allows one to create a new room 
 
 ## Add Person
- *Command:* `"add_person <First_Name> <Last_Name> <fellow|staff> <office_Name> <livingSpace_Name>"`  
+ *Command:* `amity-golang add_person <First_Name> <Last_Name> <fellow|staff> <office_Name> <livingSpace_Name>`  
  - Adds a person to the system and allocates the person to the room (s) if they are available.  
 
 ## Reallocate Person
- *Command:* `reallocate_person <First_Name> <Last_Name> <New_Room_Name>`  
+ *Command:* `amity-golang reallocate_person <First_Name> <Last_Name> <New_Room_Name>`  
  - Reallocate the person with person_name to new_room_name.  
 
 ## Print Allocations
-*Command:* `print_allocations [filename]`  
- - Prints a list of allocations onto the screen. The file name is optional, if its not provided, data is not printed in a file.  
+*Command:* `amity-golang print_allocations`  
+ - Prints a list of allocations onto the screen. 
   
     ``Room Details``  
     ``=====================``  
@@ -98,11 +93,11 @@ go install
     ``=====================``    
 
 ## Print Room
-*Command:* `print_room <room_name>`  
+*Command:* `amity-golang print_room <room_name>`  
  - Prints the names of all the people in ``room_name`` on the screen.  
 
 ## Print Unallocated People
-*Command:* `print_unallocated_people`  
+*Command:* `amity-golang print_unallocated_people`  
  - Prints a list of unallocated people to the screen. The file name is optional, if its not provided, data is not printed in a file.  
 
-**@Done By [Migwi-Ndung'u] (http://www.github.com/dmigwi)**  
+**@[Migwi-Ndung'u] (http://www.github.com/dmigwi) 2017**  
