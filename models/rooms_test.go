@@ -42,7 +42,7 @@ func TestCreateRooms(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(room, ShouldHaveSameTypeAs, testRoom)
 			So(room, ShouldNotResemble, testRoom)
-			So(room.Capacity, ShouldEqual, 6)
+			So(room.Capacity, ShouldEqual, 4)
 			So(room.ID, ShouldNotBeEmpty)
 			So(room.Name, ShouldEqual, "PHP")
 			So(room.Type, ShouldEqual, "livingspace")
@@ -108,7 +108,7 @@ func TestGetRoom(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(room.ID, ShouldNotBeEmpty)
 
-			newRoom, err = testCon.GetRoom(room.ID)
+			newRoom, err = testCon.GetRoom(name, "")
 
 			So(err, ShouldBeNil)
 
@@ -123,7 +123,7 @@ func TestGetRoom(t *testing.T) {
 			fetchRoom("Yorkshire", "livingspace")
 
 			So(err, ShouldBeNil)
-			So(newRoom.Capacity, ShouldEqual, 6)
+			So(newRoom.Capacity, ShouldEqual, 4)
 			So(newRoom.ID, ShouldNotBeEmpty)
 			So(newRoom.Name, ShouldEqual, "Yorkshire")
 			So(newRoom.Type, ShouldEqual, "livingspace")
@@ -170,7 +170,7 @@ func TestGetRooms(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			for _, newRoom := range rooms {
-				So(newRoom.Capacity, ShouldEqual, 6)
+				So(newRoom.Capacity, ShouldEqual, 4)
 				So(newRoom.ID, ShouldNotBeEmpty)
 				So(newRoom.Name, ShouldEqual, "Brookshire")
 				So(newRoom.Type, ShouldEqual, "livingspace")

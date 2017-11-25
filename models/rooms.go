@@ -19,11 +19,15 @@ type Room struct {
 func (config *Connection) CreateRoom(name, roomType string) (Room, error) {
 	var capacity int
 
+	if name == "" {
+		return Room{}, errors.New("Room name must be provided")
+	}
+
 	switch strings.ToLower(roomType) {
 	case "office":
-		capacity = 4
-	case "livingspace":
 		capacity = 6
+	case "livingspace":
+		capacity = 4
 	default:
 		return Room{}, errors.New("Only office and livingspace room types can be created")
 	}
@@ -55,10 +59,26 @@ func (config *Connection) DeleteRoom(ID string) (string, error) {
 }
 
 // GetRoom fetches the room details given its ID
-func (config *Connection) GetRoom(ID string) (Room, error) {
-	var room = Room{ID: ID}
+func (config *Connection) GetRoom(name, ID string) (Room, error) {
+	var (
+		err  error
+		room = Room{ID: ID}
+	)
 
-	return room, config.Select(&room)
+	switch {
+	case ID != "":
+		err = config.Select(&room)
+	case name != "":
+		err = config.Model(&room).Where("name = ?", name).Select()
+	default:
+		err = errors.New("Room Id or name must be provided")
+	}
+
+	if err != nil && err.Error() != "pg: no rows in result set" {
+		return room, err
+	}
+
+	return room, nil
 }
 
 // GetRooms fetches all rooms that are currently in existence
