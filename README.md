@@ -53,7 +53,7 @@ Chmod +x run_test.sh
 
 ### Run the system 
 
-- Set `PATH` to create in an application:
+- Set `PATH` to create an application:
 
 ```bash
 export PATH=$PATH:$GOPATH/n
