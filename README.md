@@ -100,4 +100,4 @@ go install
 *Command:* `amity-golang print_unallocated_people`  
  - Prints a list of unallocated people to the screen. The file name is optional, if its not provided, data is not printed in a file.  
 
-**@[Migwi-Ndung'u] (http://www.github.com/dmigwi) 2017**  
+**@[Migwi-Ndung'u](http://www.github.com/dmigwi) 2017**  
